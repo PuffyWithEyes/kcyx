@@ -5,7 +5,6 @@
     v-for="(post, index) in posts"
     :key="index"
     :itemsList="post.itemsList"
-    :userAvatar="post.userAvatar"
     :userName="post.userName"
     :viewCount="post.viewCount"
     />
@@ -36,7 +35,6 @@ export default defineComponent({
             { type: 'text', content: 'This is some text between images.' },
             { type: 'image', src: '/test/image copy.png', alt: 'Image 2' },
           ] as Item[],
-          userAvatar: '/src/assets/dog.png',
           userName: 'puffy_with_eyes',
           viewCount: 1,
         },
@@ -46,7 +44,6 @@ export default defineComponent({
             { type: 'image', src: '/src/assets/dog.png', alt: 'Image 4' },
             { type: 'text', content: 'Another text between images.' },
           ] as Item[],
-          userAvatar: '/src/assets/dog.png',
           userName: 'Agenteec',
           viewCount: 2,
         },
@@ -65,7 +62,6 @@ export default defineComponent({
       // Добавляем новый пост в начало массива posts
       this.posts.unshift({
         itemsList: itemsList,
-        userAvatar: '/src/assets/dog.png', // Замените на аватарку пользователя
         userName: 'User', // Замените на имя пользователя
         viewCount: 1,
       });

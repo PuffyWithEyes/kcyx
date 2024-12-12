@@ -1,15 +1,21 @@
 <template>
   <header class="header">
     <div class="header-left">
-      <img :src="avaPath" alt="User Avatar" class="avatar" />
+      <router-link to="/me">
+        <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
+      </router-link>
       <div class="search-container">
         <img src="../assets/search.png" alt="Search Icon" class="search-icon" @click="toggleSearch" />
         <input v-if="showSearch" type="text" placeholder="Искать..." class="search-input" />
       </div>
     </div>
     <div class="header-right">
-      <button @click="register">Регистрация</button>
-      <button @click="login">Вход</button>
+      <router-link to="/auth">
+        <button @click="register">Регистрация</button>
+      </router-link>
+      <router-link to="/auth">
+        <button @click="login">Вход</button>
+      </router-link>
     </div>
   </header>
 </template>
@@ -19,12 +25,6 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'AppHeader',
-  props: {
-    avaPath: {
-      type: String,
-      required: true,
-    },
-  },
   data() {
     return {
       showSearch: false,

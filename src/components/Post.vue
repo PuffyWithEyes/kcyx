@@ -1,7 +1,7 @@
 <template>
   <div class="image-text-block">
     <div class="user-info">
-      <img :src="userAvatar" alt="User Avatar" class="avatar" />
+      <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
       <span class="username">{{ userName }} говорит:</span>
     </div>
     <div v-for="(item, index) in itemsList" :key="index" class="item">
@@ -24,10 +24,6 @@ export default defineComponent({
   props: {
     itemsList: {
       type: Array as PropType<Item[]>,
-      required: true,
-    },
-    userAvatar: {
-      type: String,
       required: true,
     },
     userName: {
