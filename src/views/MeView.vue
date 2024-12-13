@@ -35,10 +35,18 @@
   import { defineComponent, type PropType } from 'vue';
   import Post from '../components/Post.vue';
   import type { Item } from '../types'
+  import axios from 'axios';
   
+  axios.defaults.baseURL = "http://25.31.195.44:8000/api";
+  axios.defaults.withCredentials = true;
+
   export default defineComponent({
     name: 'UserProfile',
     props: {
+      userData: {
+        type: Array,
+        required: true,
+      },
       posts: {
         type: Array as PropType<typeof Post[]>,
         required: true,

@@ -29,7 +29,7 @@
 <script>
 import axios from "axios";
 
-axios.defaults.baseURL = "http://127.0.0.1:8000/api";
+axios.defaults.baseURL = "http://25.31.195.44:8000/api";
 axios.defaults.withCredentials = true;
 
 export default {
@@ -75,7 +75,7 @@ export default {
           alert("Регистрация прошла успешно! Пожалуйста, войдите.");
           this.toggleMode();
         } else if (response.status === 204 && this.isLogin) {
-          //alert("Вход выполнен успешно!");
+          await axios.get("/me");  // Этот костыль нужен потому что login не проводит Basic Authentification
           this.$router.push("/");
         }
       } catch (error) {
