@@ -13,7 +13,7 @@ from .models import (
     LoginModel,
     PostModel,
 )
-from logic import (
+from .logic import (
     verify_password,
     is_username_available,
     create_user,
@@ -26,7 +26,9 @@ from logic import (
 )
 
 api = APIRouter()
-
+origins = [
+    "http://localhost:5173",
+]
 
 class _Link(NamedTuple):
     url: str
