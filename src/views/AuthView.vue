@@ -75,7 +75,7 @@ export default defineComponent({
         } else if (response.status === 204 && this.isLogin) {
           const meData = await axios.get("/me");  // Этот костыль нужен потому что login не проводит Basic Authentification
           userData.username = meData.data.username;
-          this.$router.push("/");
+          this.goToProfile();
         }
       } catch (error) {
         if (error.response) {
@@ -91,14 +91,14 @@ export default defineComponent({
             this.errorMessage = `Ошибка ${status}: ${data?.detail || "Неизвестная ошибка"}`;
           }
         } else {
-          this.errorMessage = "Ошибка соединения с сервером. Проверьте интернет.";
+          this.goToProfile()
         }
       } finally {
         this.loading = false;
       }
     },
     goToProfile() {
-      this.$router.push("/profile");
+      this.$router.push("/me");
     },
   },
 });

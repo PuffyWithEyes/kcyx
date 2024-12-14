@@ -42,7 +42,7 @@ export default defineComponent({
             },
             { type: 'image', src: '/src/assets/dog.png', alt: 'Image 0' },
           ] as Item[],
-          userName: 'puffy_with_eyes❤Agenteec',
+          userName: 'Admins',
           likes: 1337,
         },
       ],

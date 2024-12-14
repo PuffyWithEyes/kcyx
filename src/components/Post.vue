@@ -65,15 +65,19 @@ export default defineComponent({
       const post = await axios.get(`/users/${this.userName}/posts/${this.id}`);
       this.isLiked = post.data.is_liked;
     } catch(error) {
-      alert("Не удалось получить пост!");
+      this.$router.push("/");  // Возвращение на главную страницу
       return;
     }
 
+    this.localLikes = this.likes;
   },
   methods: {
     async likePost() {
       if (this.id === "0") {
-        this.localLikes += 1;
+        if ((await axios.get("/me")).status === 200) {
+          this.localLikes += 1;
+        }
+        
         return;
       }
 

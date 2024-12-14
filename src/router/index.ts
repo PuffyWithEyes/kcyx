@@ -4,6 +4,7 @@ import AuthView from '../views/AuthView.vue'
 import MeView from '../views/MeView.vue'
 import AdminView from '../views/AdminView.vue'
 import UserProfile from '../views/UserProfile.vue'
+import PostView from '../views/PostView.vue'
 import axios from 'axios'
 
 const router = createRouter({
@@ -55,9 +56,15 @@ const router = createRouter({
       props: true,
     },
     {
-      path: '/user/puffy_with_eyes❤Agenteec',
+      path: '/user/Admins',
       name: 'admins',
       component: AdminView, 
+    },
+    {
+      path: '/users/:username/posts/:postId',
+      name: 'post',
+      component: PostView,
+      props: true,
     },
   ],
 })
