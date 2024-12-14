@@ -3,29 +3,27 @@
     <div class="user-profile">
       <div class="user-info">
         <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
-        <span class="username">{{ getUsername }}</span>
+        <span class="username">{{ username }}</span>
       </div>
       <div class="stats-container">
         <div class="stat">
           <span class="stat-label">Посты:</span>
-          <span class="stat-value">{{ getUserPosts.length }}</span>
+          <span class="stat-value">{{ postsList.length }}</span>
         </div>
         <div class="stat">
           <span class="stat-label">Лайки:</span>
           <span class="stat-value">{{ totalLikes }}</span>
         </div>
-        <div class="stat">
-          <span class="stat-label">Просмотры:</span>
-          <span class="stat-value">{{ totalViews }}</span>
-        </div>
       </div>
       <div class="container-posts">
         <Post
-        v-for="(post, index) in getUserPosts"
+        v-for="(post, index) in postsList"
+        :id="post.id"
+        :currentTime="post.currentTime"
         :key="index"
         :itemsList="post.itemsList"
         :userName="post.userName"
-        :viewCount="post.viewCount"
+        :likes="post.likes as number"
         />
       </div>
     </div>
@@ -34,50 +32,50 @@
   <script lang="ts">
   import { defineComponent, type PropType } from 'vue';
   import Post from '../components/Post.vue';
-  import type { Item } from '../types'
+  import type { Item, Post as PostItem } from '../types'
   import axios from 'axios';
-  
-  axios.defaults.baseURL = "http://25.31.195.44:8000/api";
-  axios.defaults.withCredentials = true;
 
   export default defineComponent({
     name: 'UserProfile',
-    props: {
-      userData: {
-        type: Array,
-        required: true,
-      },
-      posts: {
-        type: Array as PropType<typeof Post[]>,
-        required: true,
-      },
-    },
     components: {
       Post,
     },
-    computed: {
-      totalLikes() {
-        return this.getUserPosts.reduce((total, post) => total + (post.itemsList.filter(item => item.type === 'image').length || 0), 0);
-      },
-      totalViews() {
-        return this.getUserPosts.reduce((total, post) => total + post.viewCount, 0);
-      },
-      getUsername() {
-        return "puffy_with_eyes";
-      },
-      getUserPosts() {
-        return [
-          {
-            itemsList: [
-              { type: 'image', src: '/src/assets/dog.png', alt: 'Image 1' },
-              { type: 'text', content: 'This is some text between images.' },
-              { type: 'image', src: '/test/image copy.png', alt: 'Image 2' },
-            ] as Item[],
-            userName: this.getUsername,
-            viewCount: 1,
+    data() {
+      return {
+        username: '',
+        postsList: [] as PostItem[],
+        totalLikes: 0,
+      };
+    },
+    async created() {
+      try {
+        const response = await axios.get('/me');
+        this.username = response.data.username; // Предполагается, что ответ содержит поле `username`
+        
+        const posts = await axios.get(`/users/${this.username}/posts`);
+
+        for (let post of posts.data) {
+          let finalPost = { id: post.id, currentTime: post.created_at, itemsList: [] as Item[], userName: this.username, likes: post.likes };
+          
+          let msg = post.content.split("\\end");
+          this.totalLikes += post.likes;
+
+          for (let m of msg) {
+            if (m === "[/src/assets/dog.png]") {
+              finalPost.itemsList.push({ type: "image", src: "/src/assets/dog.png", alt: "САБАЧКА!" });
+            } else {
+              finalPost.itemsList.push({ type: "text", content: m  });
+            }
           }
-        ]
-      },
+
+          finalPost.itemsList.pop();
+
+          this.postsList.push(finalPost);
+        }
+      } catch (error) {
+        alert(error);
+        return;
+      }
     },
   });
   </script>

@@ -2,11 +2,13 @@
   <Header avaPath="/src/assets/dog.png" />
   <div class="container-posts">
     <Post
-    v-for="(post, index) in posts"
+    v-for="(post, index) of posts"
+    :id="post.id"
+    :current-time="post.currentTime"
     :key="index"
     :itemsList="post.itemsList"
     :userName="post.userName"
-    :viewCount="post.viewCount"
+    :likes="post.likes"
     />
   </div>
   <Dock @create-post="addPost" />
@@ -18,6 +20,7 @@ import Header from '../components/Header.vue';
 import Post from '../components/Post.vue';
 import Dock from '../components/Dock.vue';
 import type { Item, PostItem } from '../types.ts'
+import axios from 'axios';
 
 export default defineComponent({
   name: 'App',
@@ -30,28 +33,23 @@ export default defineComponent({
     return {
       posts: [
         {
+          id: "0",
+          currentTime: "1970-01-01T00:00:00Z",
           itemsList: [
-            { type: 'image', src: '/src/assets/dog.png', alt: 'Image 1' },
-            { type: 'text', content: 'This is some text between images.' },
-            { type: 'image', src: '/test/image copy.png', alt: 'Image 2' },
+            {
+              type: 'text',
+              content: 'Здравствуйте, Вас приветсвует администрация сервера. Правила => Собачку можно лайкать много раз. За читы - бан. За оскорбление - бан. За оскорбление собачки - расстрел, а потом бан. Всем удачи!',
+            },
+            { type: 'image', src: '/src/assets/dog.png', alt: 'Image 0' },
           ] as Item[],
-          userName: 'puffy_with_eyes',
-          viewCount: 1,
-        },
-        {
-          itemsList: [
-            { type: 'image', src: '/src/assets/dog.png', alt: 'Image 3' },
-            { type: 'image', src: '/src/assets/dog.png', alt: 'Image 4' },
-            { type: 'text', content: 'Another text between images.' },
-          ] as Item[],
-          userName: 'Agenteec',
-          viewCount: 2,
+          userName: 'puffy_with_eyes❤Agenteec',
+          likes: 1337,
         },
       ],
     };
   },
   methods: {
-    addPost(newPostItems: PostItem[]) {
+    async addPost(newPostItems: PostItem[]) {
       // Создаем массив itemsList на основе newPostItems
       const itemsList: Item[] = newPostItems.map(item => ({
         type: item.type,
@@ -59,12 +57,34 @@ export default defineComponent({
         content: item.content
       }));
 
-      // Добавляем новый пост в начало массива posts
-      this.posts.unshift({
-        itemsList: itemsList,
-        userName: 'User', // Замените на имя пользователя
-        viewCount: 1,
-      });
+      let msg = '';
+        
+      for (let block of newPostItems) {
+        if (block.type === "text") {
+          msg += block.content + "\\end";
+        } else {
+          msg += `[${block.src}]` + "\\end";
+        }
+      }
+
+      const payload = {
+        content: msg,
+      };
+
+      try {
+        const meResponse = await axios.get('/me');
+        const postResponse = await axios.post(`/users/${meResponse.data.username}/posts`, payload);
+        this.posts.unshift({
+          id: postResponse.data.id,
+          currentTime: postResponse.data.created_at,
+          itemsList: itemsList,
+          userName: postResponse.data.author.username,
+          likes: 0,
+        });
+      } catch(error) {
+        alert("Не удалось создать новый пост!");
+        return;
+      }      
     }
   },
 });

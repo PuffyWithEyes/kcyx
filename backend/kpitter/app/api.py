@@ -87,7 +87,7 @@ async def register(
     },
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def login(input: Annotated[LoginModel, Depends(authenticated_username)]) -> None:
+async def login(input: Annotated[LoginModel, Body()]) -> None:
     """Endpoint for logging in
 
     Actually as we use Basic auth this endpoint just checks if provided

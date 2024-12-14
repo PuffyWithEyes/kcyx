@@ -10,3 +10,12 @@ export interface PostItem {
   src?: string;
   content?: string;
 }
+
+
+export interface Post {
+  id: string,
+  currentTime: string,
+  itemsList: Item[];
+  userName: string;
+  likes: Number;
+}

@@ -1,16 +1,21 @@
 <template>
   <div class="image-text-block">
     <div class="user-info">
-      <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
+      <router-link :to="routerLink">
+        <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
+      </router-link>
       <span class="username">{{ userName }} говорит:</span>
+      <span class="time">{{ currentTime }}</span>
     </div>
     <div v-for="(item, index) in itemsList" :key="index" class="item">
       <img v-if="item.type === 'image'" :src="item.src" :alt="item.alt" class="image" />
       <p v-if="item.type === 'text'" class="text">{{ item.content }}</p>
     </div>
     <div class="post-footer">
-      <button class="like-button" @click="likePost">❤</button>
-      <span class="view-count">{{ viewCount }} просмотров</span>
+      <button
+      :class="['like-button', { 'like-button-active': isLiked }]"
+      @click="likePost">{{ localLikes }} ❤</button>
+      <button class="like-button" @click="sharePost">÷</button>
     </div>
   </div>
 </template>
@@ -18,10 +23,19 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 import type { Item } from '../types.ts';
+import axios from 'axios';
 
 export default defineComponent({
   name: 'Post',
   props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    currentTime: {
+      type: String,
+      required: true,
+    },
     itemsList: {
       type: Array as PropType<Item[]>,
       required: true,
@@ -30,14 +44,63 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    viewCount: {
+    likes: {
       type: Number,
       required: true,
     },
   },
+  data() {
+    return {
+      routerLink: `/user/${this.userName}`,
+      isLiked: false, // Состояние для отслеживания лайка
+      localLikes: this.likes,
+    }
+  },
+  async created() {
+    try {
+      if (this.id === "0") {  // Особый пост от админов
+        return;
+      }
+
+      const post = await axios.get(`/users/${this.userName}/posts/${this.id}`);
+      this.isLiked = post.data.is_liked;
+    } catch(error) {
+      alert("Не удалось получить пост!");
+      return;
+    }
+
+  },
   methods: {
-    likePost() {
-      console.log('Post liked');
+    async likePost() {
+      if (this.id === "0") {
+        this.localLikes += 1;
+        return;
+      }
+
+      try {
+        if (this.isLiked) {
+          await axios.delete(`/users/${this.userName}/posts/${this.id}/like`);
+          this.localLikes -= 1;
+          this.isLiked = false;
+        } else {
+          await axios.put(`/users/${this.userName}/posts/${this.id}/like`);
+          this.isLiked = true;
+          this.localLikes += 1;
+        }
+      } catch(error) {
+        alert("Не удалось обработать событие лайка!");
+        return;
+      }
+    },
+    async sharePost() {
+      try {
+        await navigator.clipboard.writeText(
+          `${window.location.origin}/users/${this.userName}/posts/${this.id}`
+        );
+        alert("Ссылка была супешно скопирована в буффер обмена!");
+      } catch (error) {
+        console.error('Ошибка при копировании текста:', error);
+      }
     },
   },
 });
@@ -69,6 +132,11 @@ export default defineComponent({
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+}
+
+.time {
+  color: gray;
+  margin-left: 10px;
 }
 
 .username {
@@ -125,6 +193,20 @@ export default defineComponent({
 
 .like-button:hover {
   background-color: #7E6BC4;
+}
+
+.like-button-active {
+  background-color: white;
+  color: #7E6BC4;;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.like-button-active:hover {
+  background-color: gainsboro;
 }
 
 </style>
