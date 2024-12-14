@@ -27,6 +27,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import type { PostItem } from '../types';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'Dock',
@@ -66,7 +68,20 @@ export default defineComponent({
         this.scrollToBottom();
       });
     },
-    createPost() {
+    async createPost() {
+      let rsp;
+      try {
+        const response = await axios.get('/me');
+        rsp = response;
+        if (response.status !== 200) {
+          const router = useRouter();
+          router.push("auth");
+        }
+      } catch (error) {
+        return;
+      }
+
+
       if (this.previewItems.length > 0) {
         this.$emit('create-post', this.previewItems);
         this.previewItems = [];

@@ -5,16 +5,26 @@
         <img src="/src/assets/dog.png" alt="User Avatar" class="avatar" />
       </router-link>
       <div class="search-container">
-        <img src="../assets/search.png" alt="Search Icon" class="search-icon" @click="toggleSearch" />
-        <input v-if="showSearch" type="text" placeholder="Искать..." class="search-input" />
+        <img src="../assets/search.png"
+        alt="Search Icon"
+        class="search-icon"
+        @click="toggleSearch" />
+        <input v-if="showSearch"
+        type="text"
+        placeholder="Искать пользователя..."
+        class="search-input"
+        @keyup.enter="performSearch"
+        v-model="searchQuery" />
+        <span v-if="failedFind"
+        style="color: red;">Не удалось найти пользователя!</span>
       </div>
     </div>
     <div class="header-right">
       <router-link to="/auth">
-        <button @click="register">Регистрация</button>
+        <button>Регистрация</button>
       </router-link>
       <router-link to="/auth">
-        <button @click="login">Вход</button>
+        <button>Вход</button>
       </router-link>
     </div>
   </header>
@@ -22,25 +32,36 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'AppHeader',
   data() {
     return {
       showSearch: false,
+      failedFind: false,
+      searchQuery: '',
     };
   },
   methods: {
-    register(): void {
-      // Логика для регистрации
-      console.log('Register button clicked');
-    },
-    login(): void {
-      // Логика для входа
-      console.log('Login button clicked');
-    },
     toggleSearch(): void {
       this.showSearch = !this.showSearch;
+      this.failedFind = false;
+    },
+    async performSearch() {
+      try {
+        const path = `/users/${this.searchQuery.trim()}`;
+        const search = await axios.get(path);
+
+        if (search.status === 200) {
+          this.$router.push(`/user/${this.searchQuery.trim()}`);
+          return;
+        }
+      } catch(error) {}
+        alert("Не удалось найти пользователя!");
+        this.showSearch = !this.showSearch;
+        this.failedFind = true;
     },
   },
 });
