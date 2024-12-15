@@ -74,7 +74,7 @@ export default defineComponent({
       try {
         const meResponse = await axios.get('/me');
         const postResponse = await axios.post(`/users/${meResponse.data.username}/posts`, payload);
-        this.posts.unshift({
+        this.posts.push({
           id: postResponse.data.id,
           currentTime: postResponse.data.created_at,
           itemsList: itemsList,
